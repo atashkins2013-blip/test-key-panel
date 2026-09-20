@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Key Panel</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0b1020;color:#eef2ff}
+.wrap{max-width:900px;margin:auto;padding:20px}.card{background:#151c31;border:1px solid #293454;border-radius:16px;padding:18px;margin:14px 0}
+h1{font-size:24px;margin:0 0 6px}.muted{color:#9ba7c2;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+label{display:block;color:#aeb9d2;font-size:13px;margin-bottom:6px}input,select{width:100%;padding:11px;border-radius:10px;border:1px solid #33405f;background:#0e1425;color:#fff}
+button{border:0;border-radius:10px;padding:11px 14px;background:#6d7cff;color:white;font-weight:700;cursor:pointer;margin-top:12px}
+button.secondary{background:#293454}.key{padding:12px;background:#0e1425;border:1px dashed #3c4b70;border-radius:10px;margin-top:10px;word-break:break-all}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.pill{padding:4px 8px;border-radius:999px;background:#203050;color:#bcd0ff;font-size:12px}
+table{width:100%;border-collapse:collapse;margin-top:10px}th,td{text-align:left;padding:9px;border-bottom:1px solid #293454;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Test Key Panel</h1>
+    <div class="muted">Локальная демонстрационная панель. Ключи ниже вымышленные и не подключаются к VPN.</div>
+  </div>
+
+  <div class="card">
+    <h2>Создать тестовый ключ</h2>
+    <div class="grid">
+      <div><label>Пользователь</label><input id="user" value="TestUser"></div>
+      <div><label>Скорость</label><select id="speed"><option>1 Mbps</option><option>5 Mbps</option><option>10 Mbps</option><option>25 Mbps</option><option>50 Mbps</option><option>100 Mbps</option></select></div>
+      <div><label>Срок</label><select id="days"><option value="1">1 день</option><option value="7" selected>7 дней</option><option value="30">30 дней</option><option value="90">90 дней</option></select></div>
+      <div><label>HWID</label><input id="hwid" value="1"></div>
+    </div>
+    <button onclick="createKey()">Создать тестовый ключ</button>
+    <div id="result"></div>
+  </div>
+
+  <div class="card">
+    <div class="row"><h2 style="margin:0">Пользователи</h2><span class="pill" id="count">0</span></div>
+    <table>
+      <thead><tr><th>Пользователь</th><th>Скорость</th><th>Срок</th><th>HWID</th></tr></thead>
+      <tbody id="users"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const users=[];
+function rnd(n){const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';let s='';for(let i=0;i<n;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
+function createKey(){
+  const name=document.getElementById('user').value.trim()||'TestUser';
+  const speed=document.getElementById('speed').value;
+  const days=Number(document.getElementById('days').value);
+  const hwid=document.getElementById('hwid').value||'1';
+  const key='TEST-'+rnd(8)+'-'+rnd(8)+'-'+rnd(8);
+  const expires=new Date(Date.now()+days*86400000).toLocaleDateString('ru-RU');
+  users.unshift({name,speed,expires,hwid,key});
+  document.getElementById('result').innerHTML='<div class="key"><b>Тестовый ключ:</b> '+key+'</div>';
+  render();
+}
+function render(){
+  document.getElementById('count').textContent=users.length;
+  document.getElementById('users').innerHTML=users.map(u=>'<tr><td>'+esc(u.name)+'</td><td>'+u.speed+'</td><td>'+u.expires+'</td><td>'+esc(u.hwid)+'</td></tr>').join('');
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+</script>
+</body>
+</html>
